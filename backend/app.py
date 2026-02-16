@@ -1,3 +1,8 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from semantic_search import semantic_search
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -17,12 +22,16 @@ def send_email(to_email, subject, body):
     try:
         msg = MIMEText(body)
         msg["Subject"] = subject
-        msg["From"] = "kh3059843@gmail.com"
+        msg["From"] = os.getenv("EMAIL_ADDRESS")
+
         msg["To"] = to_email
 
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
-        server.login("kh3059843@gmail.com", "ljtousinmponkliw")
+        server.login(
+    os.getenv("EMAIL_ADDRESS"),
+    os.getenv("EMAIL_PASSWORD")
+)
         server.send_message(msg)
         server.quit()
         print("✅ Email sent to", to_email)
@@ -34,15 +43,15 @@ CORS(app)
 
 # ================= CONFIG =================
 CSV_FILE = "data/company_level_data.csv"
-SECRET_KEY = "secret123"
-ALPHA_VANTAGE_KEY = "QY191DNLIKENJLPN"
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALPHA_VANTAGE_KEY = os.getenv("ALPHA_VANTAGE_KEY")
 
 # ================= DB =================
 def get_connection():
     return psycopg2.connect(
         dbname="ai_stock_app",
         user="postgres",
-        password="postgres",
+        password=os.getenv("DB_PASSWORD"),
         host="localhost",
         port="5432"
     )
